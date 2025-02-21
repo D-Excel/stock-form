@@ -1,0 +1,289 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกสินค้าคงคลัง</title>
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select, button {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .disabled {
+            background-color: #e9ecef;
+            pointer-events: none;
+        }
+        .input-small {
+            width: 80px;
+        }
+        button {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h2>บันทึกสินค้าคงคลัง</h2>
+    <form id="stockForm">
+        <label for="officer">ชื่อผู้บันทึก:</label>
+        <select id="officer" required>
+            <option value="">-- กรุณาเลือก --</option>
+            <option value="ชญาน์ทิพย์ เครือนิล">ชญาน์ทิพย์ เครือนิล</option>
+            <option value="ธนา อาจเปล่งพจน์">ธนา อาจเปล่งพจน์</option>
+            <option value="กฤษณ์ณัชพล เลิศพณพงษ์">กฤษณ์ณัชพล เลิศพณพงษ์</option>
+        </select>
+
+        <label for="recordDate">วันที่บันทึกข้อมูล:</label>
+        <input type="date" id="recordDate" required>
+
+        <label for="documentRef">เลขที่เอกสารอ้างอิง:</label>
+        <input type="text" id="documentRef" maxlength="15">
+
+        <label for="entryType">ประเภทการบันทึก:</label>
+        <select id="entryType" required onchange="toggleInputFields()">
+            <option value="">-- กรุณาเลือก --</option>
+            <option value="นำเข้าจากต่างประเทศ">นำเข้าจากต่างประเทศ</option>
+            <option value="ซื้อจากในประเทศ">ซื้อจากในประเทศ</option>
+            <option value="ผลิตเอง">ผลิตเอง</option>
+            <option value="รับคืน">รับคืน</option>
+            <option value="ขายสินค้า">ขายสินค้า</option>
+            <option value="เบิกขายงานติดตั้ง">เบิกขายงานติดตั้ง</option>
+            <option value="เปลี่ยนสินค้า">เปลี่ยนสินค้า</option>
+            <option value="เบิกเป็นสินค้าตัวอย่าง">เบิกเป็นสินค้าตัวอย่าง</option>
+            <option value="เบิกสำหรับการตลาด">เบิกสำหรับการตลาด</option>
+            <option value="เบิกอื่นๆ">เบิกอื่นๆ</option>
+        </select>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>รหัสสินค้า</th>
+                    <th>ชื่อสินค้า</th>
+                    <th>เพิ่ม</th>
+                    <th>ลด</th>
+                </tr>
+            </thead>
+            <tbody id="productTable">
+                <!-- สินค้าจะถูกสร้างจาก JavaScript -->
+            </tbody>
+        </table>
+
+        <button type="submit">บันทึกข้อมูล</button>
+    </form>
+
+    <script>
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbwu5nYB2mazpVY5d6N-_ygXBa3kmPjUp4Vqcp5Ith45-KZsf_TaUs7mIV5grPaN6yLTAQ/exec";
+
+        const products = [
+            ["RG101-1-W", "รางน้ำฝนไวนิล 4 เมตร สีขาว"],
+	        ["RG101-2-W", "รางน้ำฝนไวนิล 2 เมตร สีขาว"],
+	        ["RG102-W", "ตัวต่อมุมนอก 90 องศา สีขาว"],
+            ["RG103-W", "ตัวต่อมุมใน 90 องศา สีขาว"],
+            ["RG104-W", "ตัวต่อน้ำลง สีขาว"],
+            ["RG105-1-W", "ตัวต่อน้ำลงใหญ่ สีขาว (ตัวต่อน้ำลงเหลี่ยม)"],
+            ["RG105-2-B", "ข้อต่อแปลงกลมเหลี่ยม สีขาว (ตัวต่อน้ำลงเหลี่ยม)"],
+            ["RG106-W", "ตัวต่อรางน้ำ สีขาว"],
+            ["RG107-W", "ตะขอแขวนราง สีขาว"],
+            ["RG108-W", "ตะขอรับราง สีขาว"],
+            ["RG109-W", "ตะขอรับราง แบบปรับได้ สีขาว"],
+            ["RG110-W", "ตัวปรับมุมตะขอ สีขาว"],
+            ["RG111-W", "ขาค้ำราง สีขาว"],
+            ["RG112-W", "ตัวปิดปลายราง (คู่) สีขาว"],
+            ["RG114-1-W", "ครอบท่อกันใบไม้ สีขาว"],
+            ["RG114-2-W", "ครอบท่อกันใบไม้ใหญ่ สีขาว"],
+
+            ["RG101-1-B", "รางน้ำฝนไวนิล 4 เมตร สีน้ำตาล"],
+	        ["RG101-2-B", "รางน้ำฝนไวนิล 2 เมตร สีน้ำตาล"],
+	        ["RG102-B", "ตัวต่อมุมนอก 90 องศา สีน้ำตาล"],
+            ["RG103-B", "ตัวต่อมุมใน 90 องศา สีน้ำตาล"],
+            ["RG104-B", "ตัวต่อน้ำลง สีน้ำตาล"],
+            ["RG105-1-B", "ตัวต่อน้ำลงใหญ่ สีน้ำตาล (ตัวต่อน้ำลงเหลี่ยม)"],
+            ["RG105-2-G", "ข้อต่อแปลงกลมเหลี่ยม สีน้ำตาล (ตัวต่อน้ำลงเหลี่ยม)"],
+            ["RG106-B", "ตัวต่อรางน้ำ สีน้ำตาล"],
+            ["RG107-B", "ตะขอแขวนราง สีน้ำตาล"],
+            ["RG108-B", "ตะขอรับราง สีน้ำตาล"],
+            ["RG109-B", "ตะขอรับราง แบบปรับได้ สีน้ำตาล"],
+            ["RG111-B", "ขาค้ำราง สีน้ำตาล"],
+            ["RG112-B", "ตัวปิดปลายราง (คู่) สีน้ำตาล"],
+	    ["RG101-1-G", "รางน้ำฝนไวนิล 4 เมตร สีเทา"],
+            ["RG101-2-G", "รางน้ำฝนไวนิล 2 เมตร สีเทา"],
+            ["RG102-G", "ตัวต่อมุมนอก 90 องศา สีเทา"],
+            ["RG103-G", "ตัวต่อมุมใน 90 องศา สีเทา"],
+            ["RG104-G", "ตัวต่อน้ำลง สีเทา"],
+            ["RG106-G", "ตัวต่อรางน้ำ สีเทา"],
+            ["RG107-G", "ตะขอแขวนราง สีเทา"],
+            ["RG108-G", "ตะขอรับราง สีเทา"],
+            ["RG109-G", "ตะขอรับราง แบบปรับได้ สีเทา"],
+            ["RG111-G", "ขาค้ำราง สีเทา"],
+            ["RG112-G", "ตัวปิดปลายราง (คู่) สีเทา"],
+            ["RG113", "ตะแกรงกันใบไม้"],
+            ["RG115-W", "ท่อน้ำฝนกลม 3' 3 เมตร สีขาว"],
+            ["RG116-W", "ข้อต่อตรงกลม สีขาว"],
+            ["RG117-W", "ข้องอกลม 90 องศา สีขาว"],
+            ["RG118-W", "ข้องอกลม 45 องศา สีขาว"],
+            ["RG119-W", "ตัวยึดท่อกลม สีขาว"],
+            ["RG120-W", "ท่อน้ำฝนเหลี่ยม 3' 3 เมตร สีขาว"],
+            ["RG121-W", "ข้อต่อตรงเหลี่ยม สีขาว"],
+            ["RG122-W", "ข้องอเหลี่ยม 90 องศา สีขาว"],
+            ["RG123-W", "ข้องอเหลี่ยม 75 องศา สีขาว"],
+            ["RG124-W", "ข้องอเหลี่ยม 45 องศา สีขาว"],
+            ["RG125-W", "ข้องอเหลี่ยมมุมข้าง 75 องศา สีขาว"],
+            ["RG126-W", "ตัวยึดท่อเหลี่ยม สีขาว"],
+            ["RG115-B", "ท่อน้ำฝนกลม 3' 3 เมตร สีน้ำตาล"],
+            ["RG116-B", "ข้อต่อตรงกลม สีน้ำตาล"],
+            ["RG117-B", "ข้องอกลม 90 องศา สีน้ำตาล"],
+            ["RG118-B", "ข้องอกลม 45 องศา สีน้ำตาล"],
+            ["RG119-B", "ตัวยึดท่อกลม สีน้ำตาล"],
+            ["RG120-B", "ท่อน้ำฝนเหลี่ยม 3' 3 เมตร สีน้ำตาล"],
+            ["RG121-B", "ข้อต่อตรงเหลี่ยม สีน้ำตาล"],
+            ["RG122-B", "ข้องอเหลี่ยม 90 องศา สีน้ำตาล"],
+            ["RG123-B", "ข้องอเหลี่ยม 75 องศา สีน้ำตาล"],
+            ["RG124-B", "ข้องอเหลี่ยม 45 องศา สีน้ำตาล"],            
+            ["RG125-B", "ข้องอเหลี่ยมมุมข้าง 75 องศา สีน้ำตาล"],
+            ["RG126-B", "ตัวยึดท่อเหลี่ยม สีน้ำตาล"],
+            ["DX001", "กาว 1"],
+            ["DX002", "กาว 2"],
+            ["DX003", "กาว 3"]
+        ];
+
+        function loadProducts() {
+            const table = document.getElementById("productTable");
+            table.innerHTML = "";
+            products.forEach(([code, name]) => {
+                const row = document.createElement("tr");
+
+                const codeCell = document.createElement("td");
+                codeCell.textContent = code;
+                
+                const nameCell = document.createElement("td");
+                nameCell.textContent = name;
+
+                const addCell = document.createElement("td");
+                const addInput = document.createElement("input");
+                addInput.type = "number";
+                addInput.min = "0";
+                addInput.max = "99999";
+                addInput.classList.add("addInput", "input-small");
+                addCell.appendChild(addInput);
+
+                const removeCell = document.createElement("td");
+                const removeInput = document.createElement("input");
+                removeInput.type = "number";
+                removeInput.min = "0";
+                removeInput.max = "99999";
+                removeInput.classList.add("removeInput", "input-small");
+                removeCell.appendChild(removeInput);
+
+                row.appendChild(codeCell);
+                row.appendChild(nameCell);
+                row.appendChild(addCell);
+                row.appendChild(removeCell);
+
+                table.appendChild(row);
+            });
+        }
+
+                function toggleInputFields() {
+            const entryType = document.getElementById("entryType").value;
+            const addInputs = document.querySelectorAll(".addInput");
+            const removeInputs = document.querySelectorAll(".removeInput");
+
+            const increaseTypes = ["นำเข้าจากต่างประเทศ", "ซื้อจากในประเทศ", "ผลิตเอง", "รับคืน"];
+            const decreaseTypes = ["ขายสินค้า", "เบิกขายงานติดตั้ง", "เปลี่ยนสินค้า", "เบิกเป็นสินค้าตัวอย่าง", "เบิกสำหรับการตลาด", "เบิกอื่นๆ"];
+
+            addInputs.forEach(input => {
+                input.disabled = !increaseTypes.includes(entryType);
+                input.classList.toggle("disabled", !increaseTypes.includes(entryType));
+            });
+
+            removeInputs.forEach(input => {
+                input.disabled = !decreaseTypes.includes(entryType);
+                input.classList.toggle("disabled", !decreaseTypes.includes(entryType));
+            });
+        }
+
+        document.getElementById("stockForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const jsonData = {
+                officer: document.getElementById("officer").value,
+        	recordDate: document.getElementById("recordDate").value,
+        	documentRef: document.getElementById("documentRef").value,
+       	 	entryType: document.getElementById("entryType").value,
+                products: {}
+            };
+
+            document.querySelectorAll("#productTable tr").forEach(row => {
+                const cells = row.querySelectorAll("td");
+                if (cells.length > 0) {
+                    const productName = cells[1].textContent;
+                    const addQty = parseInt(cells[2].querySelector("input").value) || 0;
+                    const removeQty = parseInt(cells[3].querySelector("input").value) || 0;
+                    
+                    let finalValue = addQty - removeQty;
+                    jsonData.products[productName] = finalValue;
+                }
+            });
+
+            fetch(googleScriptURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(jsonData)
+            }).then(() => {
+                alert("บันทึกข้อมูลเรียบร้อย!");
+                event.target.reset();
+            }).catch(error => console.error("Error:", error));
+        });
+
+        document.addEventListener("DOMContentLoaded", loadProducts);
+    </script>
+</body>
+</html>

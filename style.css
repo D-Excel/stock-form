@@ -1,0 +1,54 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f8ff; /* ฟ้าอ่อนมากเกือบขาว */
+    margin: 0;
+    padding: 20px;
+}
+
+/* ✅ ปรับสไตล์ของฟอร์มให้ดูโดดเด่นขึ้น */
+.container {
+    max-width: 800px;
+    background: #f0f8ff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: auto;
+}
+
+/* ✅ หัวตารางให้เป็นสีฟ้าอ่อน #e3f2fd */
+th {
+    background-color: #bbdefb !important;
+    color: #333;
+    font-weight: bold;
+    padding: 10px;
+    text-align: left;
+}
+
+/* ✅ แถวภายในตารางเป็นสีขาว แต่เข้มกว่าปกตินิดเดียว */
+td {
+    background-color: #fffef2;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* ✅ เพิ่มเส้นแบ่งสีจาง ๆ ระหว่างแถว */
+tr:nth-child(even) td {
+    background-color: #fffef2;
+}
+
+/* ✅ ปรับปุ่มให้ดูทันสมัย */
+button {
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    border: none;
+    padding: 12px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
